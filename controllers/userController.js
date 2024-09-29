@@ -14,7 +14,10 @@ const validateUser = [
         .isLength({ min: 8 })
         .withMessage('Password must be at least 8 characters long')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).+$/)
-        .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character')
+        .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'),
+    body('profile_bio')
+        .isLength({ max: 500 })
+        .withMessage('Bio cannot be more than 500 characters')
 ];
 
 exports.getAllUsers = asyncHandler(async(req, res, next) => {
@@ -91,6 +94,27 @@ exports.postUser = [
     }
 )];
 
+exports.updateUser = asyncHandler(async(req, res, next) => {
+    
+    const { password, profile_url, profile_bio } = req.body;
+    
+    try {
+        const updatedUser = await prisma.User.update({
+            where: {
+                id: req.params.userId,
+            },
+            data: {
+                password,
+                profile_url,
+                profile_bio,
+            }
+        });
+        return res.json(updatedUser)
+    } catch (e) {
+        return res.status(500).send(`Failed to update User \n ${e}`);
+    }
+}); 
+
 exports.deleteUser = asyncHandler(async(req, res, next) => {
     try {
         const deleteUser = await prisma.User.delete({
@@ -102,4 +126,4 @@ exports.deleteUser = asyncHandler(async(req, res, next) => {
     } catch (e) {
         return res.status(500).send(`Failed to delete User \n ${e}`);
     }
-    });
+});

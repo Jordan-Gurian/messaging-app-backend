@@ -115,6 +115,25 @@ exports.postChat = [
     }
 )];
 
+exports.updateChat = asyncHandler(async(req, res, next) => {
+    
+    const { name } = req.body;
+    
+    try {
+        const updatedChat = await prisma.Chat.update({
+            where: {
+                id: req.params.chatId,
+            },
+            data: {
+                name
+            }
+        });
+        return res.json(updatedChat)
+    } catch (e) {
+        return res.status(500).send(`Failed to update Chat \n ${e}`);
+    }
+}); 
+
 exports.deleteChat = asyncHandler(async(req, res, next) => {
     try {
         const deleteChat = await prisma.Chat.delete({
@@ -126,4 +145,4 @@ exports.deleteChat = asyncHandler(async(req, res, next) => {
     } catch (e) {
         return res.status(500).send(`Failed to delete Chat \n ${e}`);
     }
-    });
+});

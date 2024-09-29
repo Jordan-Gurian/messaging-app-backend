@@ -13,6 +13,9 @@ router.get('/:userId', userController.getUser);
 // POST new user to server
 router.post('/', userController.postUser);
 
+// PUT route to update user by id
+router.put('/:userId', verifyToken, userController.updateUser);
+
 // DELETE user from server
 router.delete('/:userId', verifyToken, userController.deleteUser);
 
