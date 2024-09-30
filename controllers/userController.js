@@ -22,7 +22,12 @@ const validateUser = [
 
 exports.getAllUsers = asyncHandler(async(req, res, next) => {
     try {
-        const allUsers = await prisma.User.findMany();
+        const allUsers = await prisma.User.findMany({
+            include: {
+                following: true,
+                followedBy: true
+            }
+        });
         return res.json(allUsers)
     } catch(e) {
         return res.status(500).send(`Failed to get all users \n ${e}`)
@@ -34,6 +39,10 @@ exports.getUser = asyncHandler(async(req, res, next) => {
         const oneUser = await prisma.User.findUnique({
             where: {
                 id: req.params.userId,
+            },
+            include: {
+                following: true,
+                followedBy: true
             }
         });
         return res.json(oneUser);
@@ -94,10 +103,14 @@ exports.postUser = [
     }
 )];
 
-exports.updateUser = asyncHandler(async(req, res, next) => {
+exports.updateUserProfile = asyncHandler(async(req, res, next) => {
     
     const { password, profile_url, profile_bio } = req.body;
-    
+
+    if (!password && !profile_url && !profile_bio) {
+        return res.status(500).send(`No valid profile update inputs provided in request`)
+    }
+
     try {
         const updatedUser = await prisma.User.update({
             where: {
@@ -107,12 +120,80 @@ exports.updateUser = asyncHandler(async(req, res, next) => {
                 password,
                 profile_url,
                 profile_bio,
+            },
+            include: {
+                following: true,
+                followedBy: true,
             }
         });
         return res.json(updatedUser)
     } catch (e) {
+        return res.status(500).send(`Failed to update User profile \n ${e}`);
+    }
+}); 
+
+exports.updateUserFollow = asyncHandler(async(req, res, next) => {
+    
+    const { followingId, isFollow } = req.body;
+    
+    if (isFollow === undefined) {
+        return res.status(500).send(`Failed to make updates, req did not provide isFollow`);
+    }
+
+    if (followingId === req.params.userId) {
+        return res.status(500).send(`Failed to make updates, cannot follow/unfollow yourself`);
+    }
+
+    if (followingId) {
+        const followingUser = await prisma.User.findUnique({
+            where: {
+                id: followingId,
+            },
+            include: {
+                following: true,
+                followedBy: true
+            }
+        });
+
+        if (!followingUser) {
+            return res.status(500).send(`Failed to make updates, user you are attempting to follow/unfollow does not exist`);
+        }
+    }
+
+    let updatedUser;
+    try {
+
+        // kind of clunky code, but ok for now
+        if (isFollow) {
+            updatedUser = await prisma.User.update({
+                where: {
+                    id: req.params.userId,
+                },
+                data: {
+                    following: { connect: [{ id: followingId }] },
+                },
+                include: {
+                    following: true,
+                    followedBy: true,
+                }
+            });
+        } else {
+            updatedUser = await prisma.User.update({
+                where: {
+                    id: req.params.userId,
+                },
+                data: {
+                    following: { disconnect: [{ id: followingId }] },
+                },
+                include: {
+                    following: true,
+                    followedBy: true,
+                }
+            });        }
+    } catch (e) {
         return res.status(500).send(`Failed to update User \n ${e}`);
     }
+    return res.json(updatedUser)
 }); 
 
 exports.deleteUser = asyncHandler(async(req, res, next) => {
