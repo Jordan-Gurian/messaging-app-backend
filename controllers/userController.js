@@ -26,7 +26,12 @@ exports.getAllUsers = asyncHandler(async(req, res, next) => {
             include: {
                 following: true,
                 followedBy: true,
-                chats: true,
+                chats: { 
+                    include: { 
+                        users: true,
+                        messages: true,
+                    }
+                },
             }
         });
         return res.json(allUsers)
@@ -44,7 +49,12 @@ exports.getUser = asyncHandler(async(req, res, next) => {
             include: {
                 following: true,
                 followedBy: true,
-                chats: true,
+                chats: { 
+                    include: { 
+                        users: true,
+                        messages: true,
+                    }
+                },
             }
         });
         return res.json(oneUser);
@@ -126,7 +136,12 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
             include: {
                 following: true,
                 followedBy: true,
-                chats: true,
+                chats: { 
+                    include: { 
+                        users: true,
+                        messages: true,
+                    }
+                },
             }
         });
         return res.json(updatedUser)
@@ -155,7 +170,12 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
             include: {
                 following: true,
                 followedBy: true,
-                chats: true,
+                chats: { 
+                    include: { 
+                        users: true,
+                        messages: true,
+                    }
+                },
             }
         });
 
@@ -179,7 +199,12 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
                 include: {
                     following: true,
                     followedBy: true,
-                    chats: true,
+                    chats: { 
+                        include: { 
+                            users: true,
+                            messages: true,
+                        }
+                    },
                 }
             });
         } else {
@@ -193,7 +218,12 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
                 include: {
                     following: true,
                     followedBy: true,
-                    chats: true,
+                    chats: { 
+                        include: { 
+                            users: true,
+                            messages: true,
+                        }
+                    },
                 }
             });        }
     } catch (e) {
