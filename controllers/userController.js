@@ -38,7 +38,7 @@ exports.getUser = asyncHandler(async(req, res, next) => {
     try {
         const oneUser = await prisma.User.findUnique({
             where: {
-                id: req.params.userId,
+                username: req.params.username,
             },
             include: {
                 following: true,
@@ -114,7 +114,7 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
     try {
         const updatedUser = await prisma.User.update({
             where: {
-                id: req.params.userId,
+                id: req.params.username,
             },
             data: {
                 password,
@@ -134,20 +134,20 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
 
 exports.updateUserFollow = asyncHandler(async(req, res, next) => {
     
-    const { followingId, isFollow } = req.body;
+    const { followingUsername, isFollow } = req.body;
     
     if (isFollow === undefined) {
         return res.status(500).send(`Failed to make updates, req did not provide isFollow`);
     }
 
-    if (followingId === req.params.userId) {
+    if (followingUsername === req.params.username) {
         return res.status(500).send(`Failed to make updates, cannot follow/unfollow yourself`);
     }
 
-    if (followingId) {
+    if (followingUsername) {
         const followingUser = await prisma.User.findUnique({
             where: {
-                id: followingId,
+                username: followingUsername,
             },
             include: {
                 following: true,
@@ -167,10 +167,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
         if (isFollow) {
             updatedUser = await prisma.User.update({
                 where: {
-                    id: req.params.userId,
+                    username: req.params.username,
                 },
                 data: {
-                    following: { connect: [{ id: followingId }] },
+                    following: { connect: [{ username: followingUsername }] },
                 },
                 include: {
                     following: true,
@@ -180,10 +180,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
         } else {
             updatedUser = await prisma.User.update({
                 where: {
-                    id: req.params.userId,
+                    username: req.params.username,
                 },
                 data: {
-                    following: { disconnect: [{ id: followingId }] },
+                    following: { disconnect: [{ username: followingUsername }] },
                 },
                 include: {
                     following: true,
@@ -200,7 +200,7 @@ exports.deleteUser = asyncHandler(async(req, res, next) => {
     try {
         const deleteUser = await prisma.User.delete({
             where: {
-                id: req.params.userId,
+                username: req.params.username,
             }
         });
         return res.json(deleteUser)
