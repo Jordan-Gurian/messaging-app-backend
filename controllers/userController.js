@@ -126,7 +126,7 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
     try {
         const updatedUser = await prisma.User.update({
             where: {
-                id: req.params.username,
+                username: req.params.username,
             },
             data: {
                 password,
