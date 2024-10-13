@@ -152,20 +152,20 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
 
 exports.updateUserFollow = asyncHandler(async(req, res, next) => {
     
-    const { followingUsername, isFollow } = req.body;
+    const { usernameToFollow, isFollow } = req.body;
     
     if (isFollow === undefined) {
         return res.status(500).send(`Failed to make updates, req did not provide isFollow`);
     }
 
-    if (followingUsername === req.params.username) {
+    if (usernameToFollow === req.params.username) {
         return res.status(500).send(`Failed to make updates, cannot follow/unfollow yourself`);
     }
 
-    if (followingUsername) {
+    if (usernameToFollow) {
         const followingUser = await prisma.User.findUnique({
             where: {
-                username: followingUsername,
+                username: usernameToFollow,
             },
             include: {
                 following: true,
@@ -191,10 +191,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
         if (isFollow) {
             updatedUser = await prisma.User.update({
                 where: {
-                    username: req.params.username,
+                    username: usernameToFollow,
                 },
                 data: {
-                    following: { connect: [{ username: followingUsername }] },
+                    followedBy: { connect: [{ username: req.params.username }] },
                 },
                 include: {
                     following: true,
@@ -210,10 +210,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
         } else {
             updatedUser = await prisma.User.update({
                 where: {
-                    username: req.params.username,
+                    username: usernameToFollow,
                 },
                 data: {
-                    following: { disconnect: [{ username: followingUsername }] },
+                    followedBy: { disconnect: [{ username: req.params.username }] },
                 },
                 include: {
                     following: true,
