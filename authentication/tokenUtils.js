@@ -18,11 +18,16 @@ function verifyToken(req, res, next) {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.SECRET);
+      const decoded = jwt.verify(token, process.env.SECRET, function(error, decoded) {
+        if (error) {
+          console.log(error)
+          return error.json()
+        }
+      });
       req.user = decoded;
       next();
     } catch (ex) {
-      return res.status(400).json({ error: 'token invalid' })
+      return res.status(401).json({ error: 'token invalid' })
     }
 };
 

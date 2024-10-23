@@ -92,14 +92,14 @@ exports.postUser = [
 
             const hashed = await bcryptjs.hash(req.body.password, 10);
 
-            const newUser = await prisma.User.create({
+            const user = await prisma.User.create({
                 data: {
                     username: username,
                     password: hashed,  
                 },
             });
 
-            jwt.sign({ newUser }, process.env.SECRET, { expiresIn: '10h' }, (err, token) => {
+            jwt.sign({ user }, process.env.SECRET, { expiresIn: '10h' }, (err, token) => {
                 res.json({ token });
             });
             
@@ -151,7 +151,6 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
 }); 
 
 exports.updateUserFollow = asyncHandler(async(req, res, next) => {
-    
     const { usernameToFollow, isFollow } = req.body;
     
     if (isFollow === undefined) {
