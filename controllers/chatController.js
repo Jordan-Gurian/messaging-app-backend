@@ -42,7 +42,11 @@ exports.getChat = asyncHandler(async(req, res, next) => {
                 id: req.params.chatId,
             },
             include: {
-                messages: true,
+                messages: {
+                    include: {
+                        author: true,
+                    }
+                },
                 users: true,
             }
         });
@@ -63,12 +67,14 @@ exports.postChat = [
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        
+
         const existingChat = await prisma.Chat.findMany({
             where: {
                 users: {
                     every: {
-                        id: { in: users.map((user) => user.id) },
+                        username: { 
+                            in: users.map((user) => user.username) 
+                        },
                     },
                 },
             },
@@ -78,8 +84,13 @@ exports.postChat = [
         });
 
         const exactMatchChat = existingChat.filter((chat) => {
-            return chat.users.length === users.length
-        })
+            const chatUsernames = chat.users.map((user) => user.username);
+            return (
+                chatUsernames.length === users.length &&
+                chatUsernames.every((username) => users.map((user) => user.username).includes(username))
+            );
+        });
+
         try {
             if (exactMatchChat.length !== 0) {
                 return res.status(500).json({ message: 'Chat with these users already exists' })
@@ -89,17 +100,16 @@ exports.postChat = [
                 const error = new Error("There is no JWT Secret Key")
                 return next(error);
             }
-            
             const newChat = await prisma.Chat.create({
                 data: {
                     users: {
-                        connect: users.map((user) => {
-                            ({ 
-                                id: user.id,
-                                username: user.username,
-                                })
-                        })
-                    }
+                        connect: users.map((user) => ({
+                            id: user.id,
+                        }))
+                    },
+                },
+                include: {
+                    users: true,
                 },
             });
             return res.json(newChat);
