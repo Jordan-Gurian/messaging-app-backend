@@ -93,7 +93,7 @@ exports.postChat = [
 
         try {
             if (exactMatchChat.length !== 0) {
-                return res.status(500).json({ message: 'Chat with these users already exists' })
+                return res.status(500).json({ error: 'Chat with these users already exists' })
             }
 
             if (!process.env.SECRET) {
@@ -136,6 +136,14 @@ exports.updateChat = asyncHandler(async(req, res, next) => {
             },
             data: {
                 name
+            },
+            include: {
+                users: true,
+                messages: {
+                    include: {
+                        author: true,
+                    }
+                },
             }
         });
         return res.json(updatedChat)

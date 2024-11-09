@@ -57,9 +57,13 @@ exports.getUser = asyncHandler(async(req, res, next) => {
                 },
             }
         });
+        if (!oneUser) {
+            throw new Error(`User with username "${req.params.username}" not found`);
+        }
+
         return res.json(oneUser);
     } catch(e) {
-        return res.status(500).send(`Failed to get User \n ${e}`);
+        return res.status(404).json({ error: `${e.message}` });
     }     
 });
 
