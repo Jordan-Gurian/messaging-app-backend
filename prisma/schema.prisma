@@ -17,7 +17,7 @@ model User {
   id          String    @id @default(uuid())  
   username    String    @unique
   password    String
-  profile_url String    @default("images/profile-default-png.png")
+  profile_url String    @default("")
   profile_bio String    @default("")
   followedBy  User[]    @relation("UserFollows")
   following   User[]    @relation("UserFollows")

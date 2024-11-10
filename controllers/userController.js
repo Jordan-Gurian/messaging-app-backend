@@ -72,9 +72,7 @@ exports.getUser = asyncHandler(async(req, res, next) => {
 exports.postUser = [
     validateUser,
     asyncHandler(async(req, res, next) => {
-    
         const { username, password } = req.body;
-
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -97,19 +95,19 @@ exports.postUser = [
             }
 
             const hashed = await bcryptjs.hash(req.body.password, 10);
-
             const user = await prisma.User.create({
                 data: {
                     username: username,
-                    password: hashed,  
+                    password: hashed,
                 },
             });
 
             jwt.sign({ user }, process.env.SECRET, { expiresIn: '10h' }, (err, token) => {
-                res.json({ token });
+                res.json({ user, token });
             });
             
         } catch (e) {
+            console.log(e)
             if (errors instanceof Error) {
             const payload = {
                 errorMessage: e.message

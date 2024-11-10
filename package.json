@@ -8,8 +8,11 @@
     "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.688.0",
+    "@aws-sdk/s3-request-presigner": "^3.688.0",
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
+    "buffer": "^6.0.3",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -18,12 +21,14 @@
     "express": "~4.16.1",
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.2.0",
+    "fs": "^0.0.1-security",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "passport": "^0.7.0",
     "pg": "^8.13.0",
-    "prisma": "^5.20.0"
+    "prisma": "^5.20.0",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
