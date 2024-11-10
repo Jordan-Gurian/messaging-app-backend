@@ -9,7 +9,9 @@ const prisma = new PrismaClient();
 const validateUser = [
     body('username')
         .isLength({min: 8, max: 20})
-        .withMessage('Username must be between 8 and 20 characters'),
+        .withMessage('Username must be between 8 and 20 characters')
+        .matches(/^[A-Za-z0-9]+$/)
+        .withMessage('Username can only contain letters and numbers'),
     body('password')
         .isLength({ min: 8 })
         .withMessage('Password must be at least 8 characters long')
