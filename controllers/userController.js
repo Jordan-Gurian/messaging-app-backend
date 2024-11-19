@@ -38,7 +38,7 @@ exports.getAllUsers = asyncHandler(async(req, res, next) => {
         });
         return res.json(allUsers)
     } catch(e) {
-        return res.status(500).send(`Failed to get all users \n ${e}`)
+        return res.status(404).json({ error: `${e.message}` });
     }
 });
 
@@ -150,7 +150,7 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
         });
         return res.json(updatedUser)
     } catch (e) {
-        return res.status(500).send(`Failed to update User profile \n ${e}`);
+        return res.status(500).json({ error: `${e.message}` });
     }
 }); 
 
@@ -183,7 +183,7 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
         });
 
         if (!followingUser) {
-            return res.status(500).send(`Failed to make updates, user you are attempting to follow/unfollow does not exist`);
+            return res.status(500).json({ error: `${e.message}` });
         }
     }
 
@@ -230,7 +230,7 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
                 }
             });        }
     } catch (e) {
-        return res.status(500).send(`Failed to update User \n ${e}`);
+        return res.status(500).json({ error: `${e.message}` });
     }
     return res.json(updatedUser)
 }); 
@@ -244,6 +244,6 @@ exports.deleteUser = asyncHandler(async(req, res, next) => {
         });
         return res.json(deleteUser)
     } catch (e) {
-        return res.status(500).send(`Failed to delete User \n ${e}`);
+        return res.status(500).json({ error: `${e.message}` });
     }
 });

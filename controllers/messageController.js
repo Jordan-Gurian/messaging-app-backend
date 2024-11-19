@@ -25,7 +25,7 @@ exports.getAllMessages = asyncHandler(async(req, res, next) => {
         const allMessages = await prisma.Message.findMany();
         return res.json(allMessages)
     } catch(e) {
-        return res.status(500).send(`Failed to get all messages \n ${e}`)
+        return res.status(404).json({ error: `${e.message}` });
     }
 });
 
@@ -38,7 +38,7 @@ exports.getMessage = asyncHandler(async(req, res, next) => {
         });
         return res.json(oneMessage);
     } catch(e) {
-        return res.status(500).send(`Failed to get Message \n ${e}`);
+        return res.status(404).json({ error: `${e.message}` });
     }     
 });
 
@@ -107,6 +107,6 @@ exports.deleteMessage = asyncHandler(async(req, res, next) => {
         });
         return res.json(deleteMessage)
     } catch (e) {
-        return res.status(500).send(`Failed to delete Message \n ${e}`);
+        return res.status(500).json({ error: `${e.message}` });
     }
     });
