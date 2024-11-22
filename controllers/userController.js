@@ -34,6 +34,14 @@ exports.getAllUsers = asyncHandler(async(req, res, next) => {
                         messages: true,
                     }
                 },
+                posts: {
+                    select: {
+                        id: true,
+                        content: true,
+                        date: true,
+                        usersThatLiked: true,
+                    }
+                },
             }
         });
         return res.json(allUsers)
@@ -55,6 +63,14 @@ exports.getUser = asyncHandler(async(req, res, next) => {
                     include: { 
                         users: true,
                         messages: true,
+                    }
+                },
+                posts: {
+                    select: {
+                        id: true,
+                        content: true,
+                        date: true,
+                        usersThatLiked: true,
                     }
                 },
             }
