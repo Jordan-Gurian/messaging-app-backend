@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,30 +8,59 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())  
-  username    String    @unique
-  password    String
-  profile_url String    @default("")
-  profile_bio String    @default("")
-  followedBy  User[]    @relation("UserFollows")
-  following   User[]    @relation("UserFollows")
-  messages    Message[]
-  chats       Chat[]
+  id            String    @id @default(uuid())
+  username      String    @unique
+  password      String
+  profile_bio   String    @default("")
+  profile_url   String    @default("")
+  comments      Comment[]
+  messages      Message[]
+  posts         Post[]
+  chats         Chat[]    @relation("ChatToUser")
+  followedBy    User[]    @relation("UserFollows")
+  following     User[]    @relation("UserFollows")
+  likedComments Comment[] @relation("commentLikes")
+  likedPosts    Post[]    @relation("postLikes")
 }
 
 model Message {
-  id          String   @id @default(uuid()) 
-  content     String
-  date        DateTime @default(now())
-  author      User     @relation(fields: [authorId], references: [id])
-  authorId    String
-  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId      String    
+  id       String   @id @default(uuid())
+  date     DateTime @default(now())
+  authorId String
+  chatId   String
+  content  String
+  author   User     @relation(fields: [authorId], references: [id])
+  chat     Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Chat {
   id       String    @id @default(uuid())
-  name      String    @default("")
-  messages Message[] 
-  users    User[]
+  name     String    @default("")
+  messages Message[]
+  users    User[]    @relation("ChatToUser")
+}
+
+model Post {
+  id             String    @id @default(uuid())
+  content        String
+  date           DateTime  @default(now())
+  authorId       String
+  comments       Comment[]
+  author         User      @relation(fields: [authorId], references: [id])
+  usersThatLiked User[]    @relation("postLikes")
+}
+
+model Comment {
+  id              String    @id @default(uuid())
+  content         String
+  date            DateTime  @default(now())
+  authorId        String
+  postId          String
+  parentCommentId String?
+  author          User      @relation(fields: [authorId], references: [id])
+  parentComment   Comment?  @relation("commentChildren", fields: [parentCommentId], references: [id])
+  comments        Comment[] @relation("commentChildren")
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  usersThatLiked  User[]    @relation("commentLikes")
+  isDeleted       Boolean   @default(false)
 }
