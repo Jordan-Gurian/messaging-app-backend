@@ -52,9 +52,12 @@ exports.getAllUsers = asyncHandler(async(req, res, next) => {
 
 exports.getUser = asyncHandler(async(req, res, next) => {
     try {
-        const oneUser = await prisma.User.findUnique({
+        const oneUser = await prisma.User.findFirst({
             where: {
-                username: req.params.username,
+                OR: [
+                    { id: req.params.userId },
+                    { username: req.params.userId },
+                ],
             },
             include: {
                 following: true,
@@ -145,8 +148,10 @@ exports.updateUserProfile = asyncHandler(async(req, res, next) => {
 
     try {
         const updatedUser = await prisma.User.update({
+            // You can only update the logged in user's profile, so you will always have the
+            // id easily accessible and therefore do not need username as an option.
             where: {
-                username: req.params.username,
+                id: req.params.userId, 
             },
             data: {
                 password,
@@ -212,8 +217,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
                 where: {
                     username: usernameToFollow,
                 },
+                // You can only update the logged in user's profile, so you will always have the
+                // id easily accessible and therefore do not need username as an option.
                 data: {
-                    followedBy: { connect: [{ username: req.params.username }] },
+                    followedBy: { connect: [{ id: req.params.userId }] },
                 },
                 include: {
                     following: true,
@@ -231,8 +238,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
                 where: {
                     username: usernameToFollow,
                 },
+                // You can only update the logged in user's profile, so you will always have the
+                // id easily accessible and therefore do not need username as an option.
                 data: {
-                    followedBy: { disconnect: [{ username: req.params.username }] },
+                    followedBy: { disconnect: [{ id: req.params.userId }] },
                 },
                 include: {
                     following: true,
@@ -254,8 +263,10 @@ exports.updateUserFollow = asyncHandler(async(req, res, next) => {
 exports.deleteUser = asyncHandler(async(req, res, next) => {
     try {
         const deleteUser = await prisma.User.delete({
+            // You can only update the logged in user's profile, so you will always have the
+            // id easily accessible and therefore do not need username as an option.
             where: {
-                username: req.params.username,
+                id: req.params.userId,
             }
         });
         return res.json(deleteUser)
