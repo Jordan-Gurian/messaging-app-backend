@@ -97,17 +97,34 @@ exports.postComment = [
 
 exports.updateComment = asyncHandler(async(req, res, next) => {
     
-    const { content } = req.body;
+    const { content, comments, usersThatLikedToAdd, usersThatLikedToRemove } = req.body;
     const commentId = req.params.commentId;
 
+    const updateData = {};
+    if (content !== undefined) updateData.content = content;
+    if (comments !== undefined) updateData.comments = comments;
+    if (usersThatLikedToAdd !== undefined) {
+        updateData.usersThatLiked = {
+            connect: {
+                username: usersThatLikedToAdd, // Add user with username defined by usersThatLikedToAdd
+            },
+        };
+    }
+
+    if (usersThatLikedToRemove !== undefined) {
+        updateData.usersThatLiked = {
+            ...updateData.usersThatLiked,
+            disconnect: {
+                username: usersThatLikedToRemove, // Remove user with username defined by usersThatLikedToRemove
+            },
+        };
+    }
     try {
         await prisma.Comment.update({
             where: {
                 id: commentId,
             },
-            data: {
-                content
-            },
+            data: updateData,
             include: {
                 usersThatLiked: true,
                 comments: true,

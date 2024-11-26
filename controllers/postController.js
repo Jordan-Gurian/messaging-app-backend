@@ -79,16 +79,34 @@ exports.postPost = [
 
 exports.updatePost = asyncHandler(async(req, res, next) => {
     
-    const { content } = req.body;
+    const { content, comments, usersThatLikedToAdd, usersThatLikedToRemove } = req.body;
+    const postId = req.params.postId;
+
+    const updateData = {};
+    if (content !== undefined) updateData.content = content;
+    if (comments !== undefined) updateData.comments = comments;
+    if (usersThatLikedToAdd !== undefined) {
+        updateData.usersThatLiked = {
+            connect: {
+                username: usersThatLikedToAdd, // Add user with username defined by usersThatLikedToAdd
+            },
+        };
+    }
     
+    if (usersThatLikedToRemove !== undefined) {
+        updateData.usersThatLiked = {
+            ...updateData.usersThatLiked,
+            disconnect: {
+                username: usersThatLikedToRemove, // Remove user with username defined by usersThatLikedToRemove
+            },
+        };
+    }
     try {
         const updatedPost = await prisma.Post.update({
             where: {
-                id: req.params.postId,
+                id: postId,
             },
-            data: {
-                content
-            },
+            data: updateData,
             include: {
                 usersThatLiked: true,
                 comments: true,
@@ -96,6 +114,7 @@ exports.updatePost = asyncHandler(async(req, res, next) => {
         });
         return res.json(updatedPost)
     } catch (e) {
+        console.log(e.message)
         return res.status(500).json({ error: `${e.message}` });
     }
 }); 
