@@ -69,6 +69,9 @@ exports.getUser = asyncHandler(async(req, res, next) => {
                     }
                 },
                 posts: {
+                    orderBy: {
+                        date: 'desc',
+                    },
                     select: {
                         id: true,
                         content: true,
