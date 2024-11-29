@@ -28,7 +28,20 @@ exports.getComment = asyncHandler(async(req, res, next) => {
             },
             include: {
                 usersThatLiked: true,
-                comments: true,
+                comments: {
+                    orderBy: [
+                        { level: 'asc' },
+                        {
+                            usersThatLiked: {
+                                _count: 'desc',
+                            },
+                        },
+                        { date: 'desc' }
+                    ],
+                    include: {
+                        comments: true,
+                    }
+                },
             }
         });
         return res.json(oneComment);
@@ -41,7 +54,8 @@ exports.postComment = [
     validateComment,
     asyncHandler(async(req, res, next) => {
         const { content, authorId, postId, parentCommentId } = req.body;      
-        
+        let level;
+
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -58,6 +72,15 @@ exports.postComment = [
             where: { id: postId },
         });
 
+        try {
+            const parent = await prisma.Comment.findUnique({
+                where: { id: parentCommentId },
+            });
+            level = parent.level + 1;
+        } catch {
+            level = 0;
+        }
+ 
         if (!author) {
             return res.status(400).json({ error: "Author does not exist" });
         }
@@ -71,7 +94,6 @@ exports.postComment = [
                 const error = new Error("There is no JWT Secret Key")
                 return next(error);
             }
-            console.log(parentCommentId)
 
             const newComment = await prisma.Comment.create({
                     data: {
@@ -79,7 +101,7 @@ exports.postComment = [
                         authorId: authorId,
                         postId: postId,
                         parentCommentId: parentCommentId || null,
-
+                        level: level,
                     },
                 }); 
             return res.status(200).json(newComment)

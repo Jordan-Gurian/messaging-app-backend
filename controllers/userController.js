@@ -77,6 +77,7 @@ exports.getUser = asyncHandler(async(req, res, next) => {
                         content: true,
                         date: true,
                         usersThatLiked: true,
+                        comments: true,
                     }
                 },
             }

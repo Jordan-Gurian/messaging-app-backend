@@ -54,6 +54,7 @@ model Comment {
   id              String    @id @default(uuid())
   content         String
   date            DateTime  @default(now())
+  level           Int       @default(0)
   authorId        String
   postId          String
   parentCommentId String?

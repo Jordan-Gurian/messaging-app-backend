@@ -26,6 +26,7 @@ exports.getPost = asyncHandler(async(req, res, next) => {
                 usersThatLiked: true,
                 comments: {
                     orderBy: [
+                        { level: 'asc' },
                         {
                             usersThatLiked: {
                                 _count: 'desc',
@@ -33,6 +34,9 @@ exports.getPost = asyncHandler(async(req, res, next) => {
                         },
                         { date: 'desc' }
                     ],
+                    include: {
+                        comments: true,
+                    }
                 },
             }
         });
