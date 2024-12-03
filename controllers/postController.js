@@ -46,6 +46,43 @@ exports.getPost = asyncHandler(async(req, res, next) => {
     }     
 });
 
+exports.getPostsFromAuthors = asyncHandler(async(req, res, next) => {
+    const { authorIds } = req.query;
+    
+    const ids = Array.isArray(authorIds) ? authorIds : [authorIds];
+    
+    try {
+        const posts = await prisma.Post.findMany({
+            where: {
+                authorId: {
+                    in: ids,
+                }
+            },
+            orderBy: { date: 'desc' },
+            include: {
+                usersThatLiked: true,
+                comments: {
+                    orderBy: [
+                        { level: 'asc' },
+                        {
+                            usersThatLiked: {
+                                _count: 'desc',
+                            },
+                        },
+                        { date: 'desc' }
+                    ],
+                    include: {
+                        comments: true,
+                    }
+                },
+            }
+        });
+        return res.json(posts);
+    } catch(e) {
+        return res.status(404).json({ error: `${e.message}` });
+    }     
+});
+
 exports.postPost = [
     validatePost,
     asyncHandler(async(req, res, next) => {

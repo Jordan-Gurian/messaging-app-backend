@@ -3,6 +3,9 @@ const postController = require('../controllers/postController');
 const router = express.Router();
 const verifyToken = require('../authentication/tokenUtils');
 
+// GET posts from specific authors from server
+router.get('/', postController.getPostsFromAuthors);
+
 // GET specific post from server
 router.get('/:postId', postController.getPost);
 
