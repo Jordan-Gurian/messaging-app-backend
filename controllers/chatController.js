@@ -127,16 +127,33 @@ exports.postChat = [
 
 exports.updateChat = asyncHandler(async(req, res, next) => {
     
-    const { name } = req.body;
-    
+    const { name, usersToAdd, usersToRemove } = req.body;
+    const chatId = req.params.chatId;
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (usersToAdd !== undefined) {
+        updateData.users = {
+            connect: {
+                username: usersToAdd, // Add user with username defined by usersToAdd.
+            },
+        };
+    }
+
+    if (usersToRemove !== undefined) {
+        updateData.users = {
+            ...updateData.usersToRemove,
+            disconnect: {
+                username: usersToRemove, // Remove user with username defined by usersToRemove
+            },
+        };
+    }
+
     try {
         const updatedChat = await prisma.Chat.update({
             where: {
-                id: req.params.chatId,
+                id: chatId,
             },
-            data: {
-                name
-            },
+            data: updateData,
             include: {
                 users: true,
                 messages: {
